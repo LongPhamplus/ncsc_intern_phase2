@@ -1,0 +1,45 @@
+# Environment
+.env
+.env.*.local
+
+# Dependencies
+vendor/
+composer.phar
+# If you use Composer, you typically commit composer.lock; comment the next line if you want to commit it
+# composer.lock
+
+# Node (if any)
+node_modules/
+
+# Caches and logs
+*.log
+log/
+logs/
+storage/
+cache/
+.tmp/
+.tmp/**
+.phpunit.result.cache
+coverage/
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backups/archives
+*.zip
+*.tar
+*.tar.gz
+*.bak
+
+# Docker local data (named volumes are external, but ignore any accidental bind-mount dirs)
+mysql_data/
+
+# Misc
+*.local.php

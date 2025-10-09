@@ -1,6 +1,12 @@
 <?php
 include __DIR__ . '/../includes/header.php';
 require_once __DIR__ . "/../config/constants.php";
+require_once __DIR__ . '/../config/middleware.php';
+require_once __DIR__ . '/../config/database.php';
+
+checkLogin();
+
+
 
 ?>
 
@@ -69,7 +75,7 @@ require_once __DIR__ . "/../config/constants.php";
                 <li><a href="manage_posts.php" class="active"><i class="uil uil-create-dashboard"></i>
                         <h5>Manage Post</h5>
                     </a></li>
-                <?php if (isset($_SESSION['user_is_admin'])) : ?>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
 
 
                     <li><a href="add_user.php"><i class="uil uil-user-plus"></i>
@@ -86,12 +92,22 @@ require_once __DIR__ . "/../config/constants.php";
 
         <main>
             <h2>Manage Posts</h2>
+            <?php
+            $sql = "SELECT * FROM posts WHERE user_id = :user_id ORDER BY id DESC";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':user_id', $_SESSION['user-id']);
+            $stmt->execute();
+            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            ?>
             <!--IF NO POSTS FOUND-->
+            <?php if (empty($posts)) : ?>
+                <div class="alert_message error"><?= "No posts found" ?></div>
+            <?php else : ?>
                 <table>
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th>Category</th>
                             <th>Edit</th>
                             <th>Delete</th>
                         </tr>
@@ -100,17 +116,17 @@ require_once __DIR__ . "/../config/constants.php";
                         <!--LOOP THROUGH AND DISPLAY POSTS-->
                             <!--GET CATEGORY TITLE OF ECAH POST FROM CATEGORIES TABLE-->
 
-
+                        <?php foreach($posts as $post) : ?>
                             <tr>
-                                <td>asdfasf</td>
-                                <td>adfasfd</td>
-                                <td><a href="<?= ROOT_URL ?>users/edit_post.php?id=" class="btn sm">Edit</a></td>
-                                <td><a href="<?= ROOT_URL ?>users/delete_post.php?id=" class="btn sm danger">Delete</a></td>
+                                <td><?= $post['title']?></td>
+                                <td><a href="<?= ROOT_URL ?>users/edit_post.php?id=<?= $post['id']?>" class="btn sm">Edit</a></td>
+                                <td><a href="<?= ROOT_URL ?>users/delete_post.php?id=<?= $post['id']?>" class="btn sm danger">Delete</a></td>
                             </tr>
+                        <?php endforeach ?>
                     </tbody>
                 </table>
                 <!--DISPLAY IF NO POSTS FOUND-->
-                <div class="alert_message error"><?= "No posts found" ?></div>
+            <?php endif ?>
         </main>
     </div>
 </section>

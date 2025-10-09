@@ -1,9 +1,26 @@
 <?php
 include __DIR__ . '/../includes/header.php';
 require_once __DIR__ . "/../config/constants.php";
+require_once __DIR__ . '/../config/middleware.php';
+require_once __DIR__ . '/../config/database.php';
 
-$_SESSION['user_is_admin'] = 1;
+checkLogin();
 
+// Enforce admin-only access
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    $_SESSION['edit-user'] = 'You are not authorized to access Manage Users.';
+    header('Location: ' . ROOT_URL . 'users/manage_posts.php');
+    exit;
+}
+
+// Fetch all users
+try {
+    $stmt = $conn->prepare('SELECT id, firstname, lastname, username, email, role, avatar FROM users ORDER BY id DESC');
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $users = [];
+}
 ?>
 
 <!----------Manage Users------->
@@ -87,7 +104,7 @@ $_SESSION['user_is_admin'] = 1;
                         <h5>Manage Post</h5>
                     </a></li>
         
-                <?php if (isset($_SESSION['user_is_admin'])) : ?>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') : ?>
 
 
                     <li><a href="add_user.php"><i class="uil uil-user-plus"></i>
@@ -105,32 +122,32 @@ $_SESSION['user_is_admin'] = 1;
 
         <main>
             <h2>Manage Users</h2>
-            <!--IF NO USER FOUND-->
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                        <th>Admin</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!--LOOP THROUGH AND DISPLAY USERS-->
-
+            <?php if (empty($users)) : ?>
+                <div class="alert_message error">No users found</div>
+            <?php else : ?>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= "{$user['firstname']} {$user['lastname']}" ?></td> <!--GET USER NAMES-->
-                            <td><?= $user['username'] ?></td> <!--GET USERNAME-->
-                            <td><a href="<?= ROOT_URL ?>admin/edit_user.php?id=<?= $user['id'] ?>" class="btn sm">Edit</a></td> <!--GET ID/EDIT USER-->
-                            <td><a href="<?= ROOT_URL ?>admin/delete_user.php?id=<?= $user['id'] ?>" class="btn sm danger">Delete</a></td> <!--DELETE USER-->
-                            <td><?= $user['is_admin'] ? 'Yes' : 'No' ?></td> <!--CHECK IF AUTHOR & ADMIN-->
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Edit</th>
                         </tr>
-
-                </tbody>
-            </table>
-            <!--DISPLAY IF NO USER FOUND-->
-                <div class="alert_message error"><?= "No users found" ?></div>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($users as $user) : ?>
+                            <tr>
+                                <td><?= htmlspecialchars(trim(($user['firstname'] ?? '') . ' ' . ($user['lastname'] ?? ''))) ?></td>
+                                <td><?= htmlspecialchars($user['username']) ?></td>
+                                <td><?= htmlspecialchars($user['email']) ?></td>
+                                <td><?= htmlspecialchars($user['role']) ?></td>
+                                <td><a class="btn sm" href="<?= ROOT_URL ?>users/edit_user.php?id=<?= (int)$user['id'] ?>">Edit</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </main>
     </div>
 </section>

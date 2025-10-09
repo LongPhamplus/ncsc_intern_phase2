@@ -2,7 +2,7 @@
  // Session already started in constants.php
 require 'config/constants.php';
 
-$username_email = $_SESSION['signin-data']['username_email'] ?? null;
+$username= $_SESSION['signin-data']['username'] ?? null;
 //$password = $_SESSION['signin-data']['password'] ?? null;
 
 

@@ -32,10 +32,8 @@ if (isset($_POST['submit'])) {
         header('location: ' . ROOT_URL . 'register.php');
         exit();
     } else {
-        //Hash password
         $hashed_password = password_hash($createpassword, PASSWORD_DEFAULT);
 
-        //Check if username or email already exists in the database
         $stmt = $conn->prepare("SELECT * FROM users WHERE username = :username OR email = :email");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':email', $email);
@@ -47,14 +45,12 @@ if (isset($_POST['submit'])) {
             header('location: ' . ROOT_URL . 'register.php');
             exit();
         } else {
-            //Handle avatar upload if file was uploaded
             if ($avatar['name']) {
                 $avatar_name = $avatar['name'];
                 $avatar_tmp_name = $avatar['tmp_name'];
                 $avatar_size = $avatar['size'];
                 $avatar_error = $avatar['error'];
 
-                //Validate file type
                 $allowed_extensions = ['png', 'jpg', 'jpeg'];
                 $extension = pathinfo($avatar_name, PATHINFO_EXTENSION);
                 if (!in_array(strtolower($extension), $allowed_extensions)) {
@@ -64,7 +60,6 @@ if (isset($_POST['submit'])) {
                     exit();
                 }
 
-                //Validate file size (max 2MB)
                 if ($avatar_size > 2 * 1024 * 1024) {
                     $_SESSION['signup-data'] = $_POST;
                     $_SESSION['signup-error'] = "File size exceeds the maximum limit of 2MB.";
@@ -72,7 +67,6 @@ if (isset($_POST['submit'])) {
                     exit();
                 }
 
-                //Generate unique file name and move the uploaded file
                 $new_avatar_name = uniqid() . '.' . $extension;
                 $avatar_destination_path = 'assets/images/' . $new_avatar_name;
 
@@ -83,11 +77,9 @@ if (isset($_POST['submit'])) {
                     exit();
                 }
             } else {
-                //Set default avatar if no file was uploaded
                 $new_avatar_name = 'default.jpg';
             }
 
-            //Insert new user into the database
             $stmt = $conn->prepare("INSERT INTO users (firstname, lastname, username, email, password, avatar) VALUES (:firstname, :lastname, :username, :email, :password, :avatar)");
             $stmt->bindParam(':firstname', $firstname);
             $stmt->bindParam(':lastname', $lastname);
@@ -96,12 +88,10 @@ if (isset($_POST['submit'])) {
             $stmt->bindParam(':password', $hashed_password);
             $stmt->bindParam(':avatar', $new_avatar_name);
             if ($stmt->execute()) {
-                //Registration successful
                 $_SESSION['signup-success'] = "Registration successful. Please log in.";
                 header('location: ' . ROOT_URL . 'login.php');
                 exit();
             } else {
-                //Registration failed
                 $_SESSION['signup-data'] = $_POST;
                 $_SESSION['signup-error'] = "An error occurred during registration. Please try again.";
                 header('location: ' . ROOT_URL . 'register.php');

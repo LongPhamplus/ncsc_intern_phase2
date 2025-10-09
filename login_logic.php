@@ -29,7 +29,11 @@ if (isset($_POST['submit'])) {
             $_SESSION['user-id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['avatar'] = $user['avatar'];
-
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['firstname'] = $user['firstname'];
+            $_SESSION['lastname'] = $user['lastname'];
+            $_SESSION['email'] = $user['email'];
+            
             // Redirect to dashboard
             header('Location: ' . ROOT_URL . 'users/manage_posts.php');
             exit();

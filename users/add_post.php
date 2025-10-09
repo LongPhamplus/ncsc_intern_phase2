@@ -1,44 +1,48 @@
 <?php
 include __DIR__ . '/../includes/header.php';
-require_once __DIR__ . "/../config/constants.php";
+require_once __DIR__ . '/../config/constants.php';
+require_once __DIR__ . '/../config/middleware.php';
 
+checkLogin();
+
+$title = $_SESSION['form_data']['title'] ?? '';
+$body  = $_SESSION['form_data']['body'] ?? '';
+
+unset($_SESSION['form_data']);
 ?>
 
-<!-----ADD POST----->
 <section class="form_section">
     <div class="container form_section-container">
-        <h2>Add Post</h2>
-         <!--/ EDIT POST ERROR MESSAGE-->
-         <?php if (isset($_SESSION['add-post'])) : //shows if edit post was NOT successful 
-    ?>
-        <div class="alert_message error">
-            <p>
-                <?= $_SESSION['add-post'];
-                //DELETE AFER EXECUTING
-                unset($_SESSION['add-post']);
-                ?>
-            </p>
-        </div>
-    <?php endif ?>
+        <h2>Add post</h2>
 
-        <form action="<?= ROOT_URL ?>admin/add_post_logic.php" enctype="multipart/form-data" method="POST">
+        <?php if (!empty($_SESSION['add-post'])) : ?>
+            <div class="alert_message error">
+                <p><?= htmlspecialchars($_SESSION['add-post']) ?></p>
+            </div>
+            <?php unset($_SESSION['add-post']); ?>
+        <?php endif; ?>
 
-            <input type="text" name="title" value="<?= $title ?>" placeholder="Title">
+        <form action="<?= htmlspecialchars(ROOT_URL . 'users/add_post_logic.php') ?>" method="POST" enctype="multipart/form-data">
+            <div class="form_control">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title"
+                       value="<?= htmlspecialchars($title) ?>"
+                       placeholder="Title" required>
+            </div>
 
-            <textarea rows="10" name="body" placeholder="Body"><?= $body ?></textarea>
+            <div class="form_control">
+                <label for="body">Body</label>
+                <textarea id="body" name="body" rows="10" placeholder="Body" required><?= htmlspecialchars($body) ?></textarea>
+            </div>
 
             <div class="form_control">
                 <label for="thumbnail">Add Thumbnail</label>
-                <input type="file" name="thumbnail" id="thumbnail">
+                <input type="file" name="thumbnail" id="thumbnail" accept="image/*">
             </div>
-            <button type="submit" name="submit" class="btn">Add Post</button>
 
+            <button type="submit" name="submit" class="btn">Add Post</button>
         </form>
     </div>
 </section>
-<!-----ADD POST ENDS---->
 
-<?php
-include __DIR__ . '/../includes/footer.php';
-
-?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>
