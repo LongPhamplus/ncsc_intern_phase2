@@ -13,11 +13,18 @@ if (!$postId || !$currentUserId) {
     exit;
 }
 
-$sql = "SELECT * FROM posts WHERE id = ? AND user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->execute([$postId, $currentUserId]);
-$post = $stmt->fetch(PDO::FETCH_ASSOC);
+$userRole = $_SESSION['role'];
 
+if ($userRole === 'admin') {
+    $sql = "SELECT * FROM posts WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$postId]);
+} else {
+    $sql = "SELECT * FROM posts WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$postId, $currentUserId]);
+}
+$post = $stmt->fetch(PDO::FETCH_ASSOC);
 if (empty($post)) {
     header("Location: " . ROOT_URL . "users/manage_posts.php");
     exit;

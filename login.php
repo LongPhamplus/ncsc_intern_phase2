@@ -57,7 +57,6 @@ unset($_SESSION['signin-data']);
        
         <input type="text" name="username" value="<?= $username ?>" placeholder="Username">
         <input type="password" name="password" placeholder="Password">
-
         <button type="submit" name="submit" class="btn">Sign In</button>
         <small>Don't have an account? 
             <a href="register.php">Sign up</a></small>

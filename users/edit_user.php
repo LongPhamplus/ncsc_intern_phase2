@@ -22,9 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $role = trim($_POST['role'] ?? 'user');
+    $password = trim($_POST['password'] ?? '');
+    $confirmPassword = trim($_POST['confirm_password'] ?? '');
 
     if ($id <= 0 || $firstname === '' || $lastname === '' || $username === '' || $email === '' || !in_array($role, ['user','admin'], true)) {
         $_SESSION['edit-user'] = 'Please fill in all required fields.';
+        $_SESSION['edit-user-data'] = $_POST;
+        header('Location: ' . ROOT_URL . 'users/edit_user.php?id=' . $id);
+        exit;
+    }
+    if ($password !== '' && $password !== $confirmPassword) {
+        $_SESSION['edit-user'] = 'Passwords do not match.';
         $_SESSION['edit-user-data'] = $_POST;
         header('Location: ' . ROOT_URL . 'users/edit_user.php?id=' . $id);
         exit;
@@ -41,15 +49,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $upd = $conn->prepare('UPDATE users SET firstname = :firstname, lastname = :lastname, username = :username, email = :email, role = :role WHERE id = :id');
-        $upd->execute([
+        if ($password !== '') {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = 'UPDATE users 
+                SET firstname = :firstname, lastname = :lastname, username = :username, 
+                    email = :email, role = :role, password = :password 
+                WHERE id = :id';
+        $params = [
             ':firstname' => $firstname,
             ':lastname' => $lastname,
             ':username' => $username,
             ':email' => $email,
             ':role' => $role,
+            ':password' => $hashedPassword,
             ':id' => $id,
-        ]);
+        ];
+        } else {
+            $sql = 'UPDATE users 
+                    SET firstname = :firstname, lastname = :lastname, username = :username, 
+                        email = :email, role = :role 
+                    WHERE id = :id';
+            $params = [
+                ':firstname' => $firstname,
+                ':lastname' => $lastname,
+                ':username' => $username,
+                ':email' => $email,
+                ':role' => $role,
+                ':id' => $id,
+            ];
+        }
+
+        $upd = $conn->prepare($sql);
+        $upd->execute($params);
+
+
 
         $_SESSION['edit-user-success'] = 'User updated successfully.';
         header('Location: ' . ROOT_URL . 'users/manage_users.php');
@@ -108,7 +142,8 @@ if (isset($_SESSION['edit-user-data'])) {
             <input type="text" name="lastname" placeholder="Last name" value="<?= htmlspecialchars($user['lastname'] ?? '') ?>" required>
             <input type="text" name="username" placeholder="Username" value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
             <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
-
+            <input type="password" name="password" placeholder="New Password (leave blank to keep current)">
+            <input type="password" name="confirm_password" placeholder="Confirm New Password (leave blank to keep current)">
             <label for="role">Role</label>
             <select name="role" id="role">
                 <option value="user" <?= (isset($user['role']) && $user['role'] === 'user') ? 'selected' : '' ?>>User</option>

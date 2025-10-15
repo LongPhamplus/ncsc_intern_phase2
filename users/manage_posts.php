@@ -93,13 +93,21 @@ checkLogin();
         <main>
             <h2>Manage Posts</h2>
             <?php
-            $sql = "SELECT * FROM posts WHERE user_id = :user_id ORDER BY id DESC";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':user_id', $_SESSION['user-id']);
+            if ($_SESSION['role'] === 'admin') {
+                // Admin -> lấy tất cả bài viết
+                $sql = "SELECT * FROM posts ORDER BY id DESC";
+                $stmt = $conn->prepare($sql);
+            } else {
+                // User thường -> chỉ lấy bài viết của chính họ
+                $sql = "SELECT * FROM posts WHERE user_id = :user_id ORDER BY id DESC";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':user_id', $_SESSION['user-id'], PDO::PARAM_INT);
+            }
+
             $stmt->execute();
             $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             ?>
+
             <!--IF NO POSTS FOUND-->
             <?php if (empty($posts)) : ?>
                 <div class="alert_message error"><?= "No posts found" ?></div>

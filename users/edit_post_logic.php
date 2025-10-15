@@ -63,6 +63,8 @@ if (isset($_POST['submit'])) {
             header('Location: ' . ROOT_URL . 'users/edit_post.php?id=' . $postId);
             exit;
         }
+    } else {
+        $error = 'Lỗi upload: ' . $_FILES['thumbnail']['error'];
     }
 
     // Cập nhật dữ liệu bài viết

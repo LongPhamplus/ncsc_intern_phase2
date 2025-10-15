@@ -37,7 +37,7 @@ try {
 
 <?php
 if (!function_exists('excerpt_text')) {
-    function excerpt_text($text, $limit = 140, $suffix = '...') {
+    function excerpt_text($text, $limit = 14, $suffix = '...') {
         $text = (string)($text ?? '');
         if (function_exists('mb_strimwidth')) {
             return mb_strimwidth($text, 0, $limit, $suffix, 'UTF-8');
@@ -82,7 +82,7 @@ if (!function_exists('excerpt_text')) {
                             </a>
                         </h3>
                         <p class="post_body">
-                            <?= htmlspecialchars(excerpt_text($post['content'], 140)) ?>
+                            <?= htmlspecialchars(excerpt_text($post['content'], 14)) ?>
                         </p>
                         <div class="post_meta">
                             <small>ID: <?= htmlspecialchars($post['id']) ?> | By: <?= htmlspecialchars(trim(($post['firstname'] ?? '') . ' ' . ($post['lastname'] ?? ''))) ?></small><br>

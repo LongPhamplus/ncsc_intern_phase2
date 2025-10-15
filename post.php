@@ -62,7 +62,7 @@ if ($id > 0) {
                             </small>
                         </div>
                     </div>
-                    <div class="post_body" style="white-space:pre-wrap;">
+                    <div class="post_body" style="white-space:pre-wrap; max-width: 80vw;overflow-wrap: break-word;">
                         <?= nl2br(htmlspecialchars($post['content'])) ?>
                     </div>
                 </div>
