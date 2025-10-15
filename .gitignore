@@ -22,6 +22,21 @@ cache/
 .phpunit.result.cache
 coverage/
 
+# Cache và dữ liệu tạm
+CachedData/
+Code Cache/
+GPUCache/
+Local Storage/
+blob_storage/
+Crashpad/
+Dictionaries/
+Session Storage/
+*.journal
+Cookies*
+languagepacks.json
+machineid
+Preferences
+Cache/
 # IDE/editor
 .idea/
 .vscode/
